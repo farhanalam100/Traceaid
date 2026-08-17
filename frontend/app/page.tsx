@@ -119,21 +119,6 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   return <>{display}{suffix}</>;
 }
 
-function FloatingOrb({ color, size, top, left, delay }: { color: string; size: number; top: string; left: string; delay: number }) {
-  return (
-    <motion.div
-      className="pointer-events-none absolute rounded-full blur-3xl"
-      style={{ background: color, width: size, height: size, top, left, opacity: 0.25 }}
-      animate={{
-        y: [0, -30, 0, 20, 0],
-        x: [0, 20, -10, 0, 0],
-        scale: [1, 1.1, 0.95, 1.05, 1],
-      }}
-      transition={{ duration: 14 + delay, repeat: Infinity, ease: "easeInOut", delay }}
-    />
-  );
-}
-
 
 function HandNetworkIllustration() {
   return (
@@ -155,31 +140,32 @@ function HandNetworkIllustration() {
         </radialGradient>
       </defs>
 
-      {/* Open hand, palm up, simplified geometric silhouette */}
-      <g transform="translate(60,300)">
+      {/* Open hand, palm up — cupped, receiving gesture */}
+      <g transform="translate(40,260)">
         <path
-          d="M40 220
-             C10 210, -5 175, 10 140
-             L 35 55
-             C 38 40, 55 38, 58 53
-             L 66 130
-             L 72 40
-             C 74 24, 92 24, 94 40
-             L 100 132
-             L 108 34
-             C 111 18, 129 18, 131 35
-             L 136 132
-             L 146 55
-             C 149 40, 166 42, 165 58
-             L 158 150
-             C 178 150, 192 168, 186 190
-             L 172 232
-             C 165 254, 142 268, 118 268
-             L 78 268
-             C 58 268, 46 250, 40 220 Z"
+          d="M20 240
+             C -8 228, -14 190, 4 162
+             C 10 152, 18 146, 18 132
+             L 22 62
+             C 22.8 48.5, 42.8 48.5, 43.5 62
+             L 47 128
+             C 47.3 133, 55 133, 55.3 128
+             L 60 44
+             C 60.9 29, 82.4 29, 83.2 44
+             L 88 130
+             C 88.3 135, 96 135, 96.3 130
+             L 101 56
+             C 101.8 42, 122 42, 122.7 56
+             L 127 138
+             C 141 140, 152 152, 154 168
+             C 157 191, 148 214, 128 226
+             L 96 246
+             C 78 257, 56 257, 38 248
+             Z"
           fill="url(#handGrad)"
           stroke="#2A3B5C"
-          strokeWidth="1.5"
+          strokeWidth="1.25"
+          strokeLinejoin="round"
         />
       </g>
 
@@ -362,9 +348,6 @@ export default function Home() {
           maskImage: "radial-gradient(ellipse at 30% 20%, black 0%, transparent 70%)",
         }}
       />
-      <FloatingOrb color="#FF5A36" size={420} top="-8%" left="55%" delay={0} />
-      <FloatingOrb color="#1B2A4A" size={360} top="40%" left="-10%" delay={3} />
-      <FloatingOrb color="#1B8A5A" size={280} top="70%" left="65%" delay={6} />
 
       <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 pt-6">
         <motion.div
@@ -465,21 +448,12 @@ export default function Home() {
         <div>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: [0, -4, 0] }}
-            transition={{
-              opacity: { duration: 0.8, delay: 0.6, ease: EASE },
-              y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.4 },
-            }}
-            whileHover={{ scale: 1.04 }}
-            className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full cursor-default"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: EASE }}
+            className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full"
             style={{ color: "#1B2A4A", background: "#E4E8E2" }}
           >
-            <motion.span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ background: "#1B8A5A" }}
-              animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#1B8A5A" }} />
             Stellar-settled · Cross-border relief
           </motion.div>
 
@@ -520,33 +494,18 @@ export default function Home() {
             <motion.button
               onClick={handleDonate}
               disabled={donating}
-              whileHover={{ scale: 1.035, boxShadow: "0 12px 28px -8px rgba(255,90,54,0.45)" }}
-              whileTap={{ scale: 0.97 }}
-              className="relative overflow-hidden inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold w-fit disabled:opacity-60"
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.15 }}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold w-fit disabled:opacity-60"
               style={{ background: "#10151F", color: "#F2F4F1" }}
             >
-              <motion.span
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(115deg, transparent 20%, rgba(255,90,54,0.35) 50%, transparent 80%)",
-                }}
-                animate={{ x: ["-120%", "220%"] }}
-                transition={{ duration: 2.6, repeat: Infinity, ease: "linear", repeatDelay: 1.2 }}
-              />
-              <span className="relative z-10 flex items-center gap-2">
-                {donating ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <motion.span
-                    animate={{ x: [0, 3, 0], y: [0, -3, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <ArrowUpRight size={16} />
-                  </motion.span>
-                )}
-                {wallet ? "Donate 25 to Assam Flood Relief" : "Connect wallet to donate"}
-              </span>
+              {donating ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <ArrowUpRight size={16} />
+              )}
+              {wallet ? "Donate 25 to Assam Flood Relief" : "Connect wallet to donate"}
             </motion.button>
             {statusMsg && (
               <span className="text-sm" style={{ color: "#4A5354" }}>
