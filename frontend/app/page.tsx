@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { ArrowUpRight, CheckCircle2, Loader2, Menu, X } from "lucide-react";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import {
@@ -11,7 +11,7 @@ import {
   signTransaction,
 } from "@stellar/freighter-api";
 
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 const CONTRACT_ID =
   "CAZ6IXB27W6ZGT5LFF5C2L2VADRYF5JGLH4E7GG2V3OEJL44NRZNBWTE";
@@ -101,6 +101,168 @@ async function submitDeposit(donorAddress: string, amount: number) {
 }
 
 function HeadlineWord({ children, delay }: { children: React.ReactNode; delay: number }) {
+
+function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const mv = useMotionValue(0);
+  const rounded = useTransform(mv, (v) => Math.round(v * 10) / 10);
+  const [display, setDisplay] = useState("0");
+
+  useEffect(() => {
+    const controls = animate(mv, value, { duration: 1.4, delay: 1.1, ease: [0.22, 1, 0.36, 1] });
+    const unsub = rounded.on("change", (v) => setDisplay(v.toString()));
+    return () => {
+      controls.stop();
+      unsub();
+    };
+  }, [value]);
+
+  return <>{display}{suffix}</>;
+}
+
+function FloatingOrb({ color, size, top, left, delay }: { color: string; size: number; top: string; left: string; delay: number }) {
+  return (
+    <motion.div
+      className="pointer-events-none absolute rounded-full blur-3xl"
+      style={{ background: color, width: size, height: size, top, left, opacity: 0.25 }}
+      animate={{
+        y: [0, -30, 0, 20, 0],
+        x: [0, 20, -10, 0, 0],
+        scale: [1, 1.1, 0.95, 1.05, 1],
+      }}
+      transition={{ duration: 14 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+    />
+  );
+}
+
+
+function HandNetworkIllustration() {
+  return (
+    <motion.svg
+      viewBox="0 0 640 640"
+      className="w-full h-full"
+      initial={{ opacity: 0, scale: 1.04 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <defs>
+        <linearGradient id="handGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1B2A4A" />
+          <stop offset="100%" stopColor="#10151F" />
+        </linearGradient>
+        <radialGradient id="tokenGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FF5A36" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#FF5A36" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* Open hand, palm up, simplified geometric silhouette */}
+      <g transform="translate(60,300)">
+        <path
+          d="M40 220
+             C10 210, -5 175, 10 140
+             L 35 55
+             C 38 40, 55 38, 58 53
+             L 66 130
+             L 72 40
+             C 74 24, 92 24, 94 40
+             L 100 132
+             L 108 34
+             C 111 18, 129 18, 131 35
+             L 136 132
+             L 146 55
+             C 149 40, 166 42, 165 58
+             L 158 150
+             C 178 150, 192 168, 186 190
+             L 172 232
+             C 165 254, 142 268, 118 268
+             L 78 268
+             C 58 268, 46 250, 40 220 Z"
+          fill="url(#handGrad)"
+          stroke="#2A3B5C"
+          strokeWidth="1.5"
+        />
+      </g>
+
+      {/* Token hovering above palm */}
+      <motion.circle
+        cx="150"
+        cy="270"
+        r="60"
+        fill="url(#tokenGlow)"
+        animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.08, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.circle
+        cx="150"
+        cy="270"
+        r="22"
+        fill="#F2F4F1"
+        stroke="#FF5A36"
+        strokeWidth="3"
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.text
+        x="150"
+        y="278"
+        textAnchor="middle"
+        fontSize="18"
+        fontWeight="700"
+        fill="#FF5A36"
+        fontFamily="'Space Grotesk', sans-serif"
+        animate={{ y: [270, 262, 270] }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        ★
+      </motion.text>
+
+      {/* Network lines radiating outward - representing the on-chain trail */}
+      {[
+        { x2: 340, y2: 120, delay: 0 },
+        { x2: 420, y2: 220, delay: 0.4 },
+        { x2: 460, y2: 340, delay: 0.8 },
+        { x2: 420, y2: 460, delay: 1.2 },
+        { x2: 320, y2: 540, delay: 1.6 },
+      ].map((line, i) => (
+        <g key={i}>
+          <motion.line
+            x1="150"
+            y1="270"
+            x2={line.x2}
+            y2={line.y2}
+            stroke="#3A4558"
+            strokeWidth="1.5"
+            strokeDasharray="4 4"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.6 }}
+            transition={{ duration: 1.2, delay: 1 + line.delay * 0.3, ease: EASE }}
+          />
+          <motion.circle
+            cx={line.x2}
+            cy={line.y2}
+            r="7"
+            fill="#1B8A5A"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1.3, 1], opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.4 + line.delay * 0.3, ease: EASE }}
+          />
+          <motion.circle
+            cx={line.x2}
+            cy={line.y2}
+            r="14"
+            fill="none"
+            stroke="#1B8A5A"
+            strokeWidth="1.5"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: [1, 1.6], opacity: [0.5, 0] }}
+            transition={{ duration: 1.8, delay: 1.6 + line.delay * 0.3, repeat: Infinity, ease: "easeOut" }}
+          />
+        </g>
+      ))}
+    </motion.svg>
+  );
+}
+
   return (
     <span className="block overflow-hidden">
       <motion.span
@@ -174,10 +336,10 @@ export default function Home() {
     }
   }
 
-  const stats: [string, string][] = [
-    ["~4s", "settlement time"],
-    ["0.3%", "network fee"],
-    ["100%", "on-chain trail"],
+  const stats: { value: number; suffix: string; label: string }[] = [
+    { value: 4, suffix: "s", label: "settlement time" },
+    { value: 0.3, suffix: "%", label: "network fee" },
+    { value: 100, suffix: "%", label: "on-chain trail" },
   ];
 
   return (
@@ -200,12 +362,15 @@ export default function Home() {
           maskImage: "radial-gradient(ellipse at 30% 20%, black 0%, transparent 70%)",
         }}
       />
+      <FloatingOrb color="#FF5A36" size={420} top="-8%" left="55%" delay={0} />
+      <FloatingOrb color="#1B2A4A" size={360} top="40%" left="-10%" delay={3} />
+      <FloatingOrb color="#1B8A5A" size={280} top="70%" left="65%" delay={6} />
 
       <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 pt-6">
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: EASE }}
+          transition={{ duration: 0.8, ease: EASE }}
           className="flex items-center gap-2"
         >
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#FF5A36" }} />
@@ -220,7 +385,7 @@ export default function Home() {
         <motion.nav
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+          transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
           className="hidden md:flex items-center gap-8 text-[13px] font-medium tracking-wide"
           style={{ color: "#1B2A4A" }}
         >
@@ -234,7 +399,9 @@ export default function Home() {
         <motion.button
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15, ease: EASE }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
           onClick={connectWallet}
           className="text-[13px] font-medium px-4 py-2 rounded-full"
           style={{
@@ -290,16 +457,29 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-full lg:w-[55%] opacity-[0.55]" style={{ maskImage: "linear-gradient(to left, black 40%, transparent 90%)" }}>
+        <HandNetworkIllustration />
+      </div>
+
       <main className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 md:px-12 pt-16 md:pt-24 pb-16 grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-14 items-center">
         <div>
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: EASE }}
-            className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: [0, -4, 0] }}
+            transition={{
+              opacity: { duration: 0.8, delay: 0.6, ease: EASE },
+              y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.4 },
+            }}
+            whileHover={{ scale: 1.04 }}
+            className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full cursor-default"
             style={{ color: "#1B2A4A", background: "#E4E8E2" }}
           >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#1B8A5A" }} />
+            <motion.span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: "#1B8A5A" }}
+              animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            />
             Stellar-settled · Cross-border relief
           </motion.div>
 
@@ -312,9 +492,9 @@ export default function Home() {
               letterSpacing: "-0.01em",
             }}
           >
-            <HeadlineWord delay={0.3}>Aid that</HeadlineWord>
-            <HeadlineWord delay={0.42}>arrives —</HeadlineWord>
-            <HeadlineWord delay={0.54}>
+            <HeadlineWord delay={0.8}>Aid that</HeadlineWord>
+            <HeadlineWord delay={0.95}>arrives —</HeadlineWord>
+            <HeadlineWord delay={1.1}>
               <span style={{ color: "#FF5A36" }}>and proves it.</span>
             </HeadlineWord>
           </h1>
@@ -322,7 +502,7 @@ export default function Home() {
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.75, ease: EASE }}
+            transition={{ duration: 0.8, delay: 1.3, ease: EASE }}
             className="mt-7 text-base md:text-lg max-w-md"
             style={{ color: "#4A5354" }}
           >
@@ -334,22 +514,40 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9, ease: EASE }}
+            transition={{ duration: 0.8, delay: 1.5, ease: EASE }}
             className="mt-9 flex flex-col gap-3"
           >
-            <button
+            <motion.button
               onClick={handleDonate}
               disabled={donating}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold w-fit disabled:opacity-60"
+              whileHover={{ scale: 1.035, boxShadow: "0 12px 28px -8px rgba(255,90,54,0.45)" }}
+              whileTap={{ scale: 0.97 }}
+              className="relative overflow-hidden inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold w-fit disabled:opacity-60"
               style={{ background: "#10151F", color: "#F2F4F1" }}
             >
-              {donating ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <ArrowUpRight size={16} />
-              )}
-              {wallet ? "Donate 25 to Assam Flood Relief" : "Connect wallet to donate"}
-            </button>
+              <motion.span
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(115deg, transparent 20%, rgba(255,90,54,0.35) 50%, transparent 80%)",
+                }}
+                animate={{ x: ["-120%", "220%"] }}
+                transition={{ duration: 2.6, repeat: Infinity, ease: "linear", repeatDelay: 1.2 }}
+              />
+              <span className="relative z-10 flex items-center gap-2">
+                {donating ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <motion.span
+                    animate={{ x: [0, 3, 0], y: [0, -3, 0] }}
+                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ArrowUpRight size={16} />
+                  </motion.span>
+                )}
+                {wallet ? "Donate 25 to Assam Flood Relief" : "Connect wallet to donate"}
+              </span>
+            </motion.button>
             {statusMsg && (
               <span className="text-sm" style={{ color: "#4A5354" }}>
                 {statusMsg}
@@ -360,20 +558,20 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.1, ease: EASE }}
+            transition={{ duration: 0.8, delay: 1.7, ease: EASE }}
             className="mt-12 flex items-center gap-8 pt-6"
             style={{ borderTop: "1px solid #D8D3C7" }}
           >
-            {stats.map(([num, label]) => (
-              <div key={label}>
+            {stats.map((s) => (
+              <div key={s.label}>
                 <div
                   className="text-xl font-semibold"
                   style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#10151F" }}
                 >
-                  {num}
+                  <CountUp value={s.value} suffix={s.suffix} />
                 </div>
                 <div className="text-[11px] uppercase tracking-wide mt-0.5" style={{ color: "#6B746C" }}>
-                  {label}
+                  {s.label}
                 </div>
               </div>
             ))}
@@ -381,9 +579,9 @@ export default function Home() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: EASE }}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.8, delay: 0.2, ease: EASE }}
           className="rounded-2xl overflow-hidden"
           style={{ background: "#10151F", boxShadow: "0 24px 60px -20px rgba(16,21,31,0.35)" }}
         >
@@ -427,6 +625,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: EASE }}
+                    whileHover={{ scale: 1.015, borderColor: "#3A4558" }}
                     className="rounded-lg px-4 py-3"
                     style={{ background: "#161D2B", border: "1px solid #232B3A" }}
                   >
