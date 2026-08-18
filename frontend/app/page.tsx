@@ -101,6 +101,19 @@ async function submitDeposit(donorAddress: string, amount: number) {
 }
 
 function HeadlineWord({ children, delay }: { children: React.ReactNode; delay: number }) {
+  return (
+    <span className="block overflow-hidden">
+      <motion.span
+        className="block"
+        initial={{ y: "110%" }}
+        animate={{ y: 0 }}
+        transition={{ delay, duration: 0.7, ease: EASE }}
+      >
+        {children}
+      </motion.span>
+    </span>
+  );
+}
 
 function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const mv = useMotionValue(0);
@@ -118,7 +131,6 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
 
   return <>{display}{suffix}</>;
 }
-
 
 function HandNetworkIllustration() {
   return (
@@ -246,20 +258,6 @@ function HandNetworkIllustration() {
         </g>
       ))}
     </motion.svg>
-  );
-}
-
-  return (
-    <span className="block overflow-hidden">
-      <motion.span
-        className="block"
-        initial={{ y: "110%" }}
-        animate={{ y: 0 }}
-        transition={{ delay, duration: 0.7, ease: EASE }}
-      >
-        {children}
-      </motion.span>
-    </span>
   );
 }
 
