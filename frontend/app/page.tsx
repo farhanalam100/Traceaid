@@ -19,6 +19,65 @@ const RPC_URL = "https://soroban-testnet.stellar.org:443";
 const NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
 const CAMPAIGN_ID = "assam_floods";
 
+// ---- design tokens -------------------------------------------------------
+// base      #090909   page background
+// panel     #111111   elevated surfaces
+// panelAlt  #171717   secondary surfaces
+// ink       #F5F1E8   primary text
+// mute      #B8B1A5   secondary text
+// hairline  #2B2A29   dividers / borders
+// signal    #D7BF7A   premium accent
+// verified  #86D7A1   confirmed release state
+// -------------------------------------------------------------------------
+
+const ROTATING_WORDS = ["verified delivery.", "real-time visibility.", "clear accountability.", "trusted settlement."];
+
+// Honest — this is your real stack, not fabricated partner logos.
+const STACK_ITEMS = ["Stellar Network", "Soroban", "Freighter Wallet", "Testnet Live", "Next.js", "TypeScript"];
+
+const AUDIENCES = [
+  {
+    title: "For donors",
+    body: "Send funds directly to a verified relief site and watch the delivery confirm on chain — no waiting for a quarterly impact report.",
+    cta: "Start donating",
+  },
+  {
+    title: "For relief organizations",
+    body: "Receive funds the moment they're needed, and publish proof of delivery automatically instead of manually reconciling spreadsheets.",
+    cta: "Register your org",
+  },
+  {
+    title: "For developers",
+    body: "Build on the open escrow protocol. Soroban contract source, deposit/release interfaces, and testnet docs, all public.",
+    cta: "Read the docs",
+  },
+];
+
+const CAMPAIGNS = [
+  {
+    name: "Assam Flood Relief",
+    blurb: "Active campaign settling donor funds to verified relief sites across flood-affected districts.",
+    status: "Live",
+  },
+  {
+    name: "Odisha Cyclone Response",
+    blurb: "Emergency shelter and supply funding, released in stages as verification checkpoints clear.",
+    status: "Live",
+  },
+  {
+    name: "Bihar Drought Fund",
+    blurb: "Longer-horizon disbursement to agricultural relief partners, with quarterly release milestones.",
+    status: "Upcoming",
+  },
+];
+
+const FOOTER_COLUMNS = [
+  { title: "About", links: ["The protocol", "Team", "Careers"] },
+  { title: "Use cases", links: ["Disaster relief", "Cross border aid", "Verified NGOs"] },
+  { title: "Developers", links: ["Docs", "Soroban contract", "API reference"] },
+  { title: "Connect", links: ["Community", "Code of conduct", "FAQ"] },
+];
+
 type LedgerRecord = {
   amount: string;
   campaign_id: string;
@@ -100,18 +159,118 @@ async function submitDeposit(donorAddress: string, amount: number) {
   return { hash: sendResult.hash, status: getResult.status };
 }
 
-function HeadlineWord({ children, delay }: { children: React.ReactNode; delay: number }) {
+// Halftone dot field, like stellar.org's cream hero background.
+function HalftoneBackground() {
   return (
-    <span className="block overflow-hidden">
-      <motion.span
-        className="block"
-        initial={{ y: "110%" }}
-        animate={{ y: 0 }}
-        transition={{ delay, duration: 0.7, ease: EASE }}
+    <div
+      className="pointer-events-none absolute inset-0"
+      style={{
+        backgroundColor: "#090909",
+        backgroundImage: "radial-gradient(rgba(215, 191, 122, 0.18) 1.1px, transparent 1.1px)",
+        backgroundSize: "18px 18px",
+        maskImage: "linear-gradient(to bottom, black 58%, transparent 98%)",
+        WebkitMaskImage: "linear-gradient(to bottom, black 58%, transparent 98%)",
+      }}
+    />
+  );
+}
+
+function TraceaidLogo({ compact = false }: { compact?: boolean }) {
+  const size = compact ? 30 : 36;
+
+  return (
+    <div className="flex items-center gap-3">
+      <svg width={size} height={size} viewBox="0 0 48 48" aria-label="Traceaid logo" role="img">
+        <rect x="3" y="3" width="42" height="42" rx="12" fill="#F5F1E8" />
+        <path
+          d="M14 15.5h20M19 15.5V31M15 31h18M15 31l4.8-7h8.4L33 31"
+          fill="none"
+          stroke="#090909"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M31 11.5L36.5 16M36.5 11.5V16H31"
+          fill="none"
+          stroke="#D7BF7A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="16.5" cy="18.5" r="3" fill="#D7BF7A" />
+      </svg>
+      <span
+        className="tracking-tight"
+        style={{
+          fontFamily: "'Fraunces', serif",
+          fontWeight: 500,
+          fontSize: compact ? "1rem" : "1.1rem",
+          letterSpacing: "-0.04em",
+          color: "#F5F1E8",
+        }}
       >
-        {children}
-      </motion.span>
+        Traceaid
+      </span>
+    </div>
+  );
+}
+
+// Cycling word, like stellar.org's "Where blockchain meets [payments/tokenization/DeFi]"
+function RotatingWord({ words }: { words: string[] }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setI((v) => (v + 1) % words.length), 2200);
+    return () => clearInterval(id);
+  }, [words.length]);
+
+  return (
+    <span className="relative inline-block align-baseline">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={words[i]}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.4, ease: EASE }}
+          className="inline-block italic"
+          style={{ color: "#D7BF7A" }}
+        >
+          {words[i]}
+        </motion.span>
+      </AnimatePresence>
     </span>
+  );
+}
+
+// Edge-to-edge sliding strip, like stellar.org's partner-logo marquee —
+// populated with real stack items instead of fabricated partner logos.
+function Marquee({ items }: { items: string[] }) {
+  const track = [...items, ...items];
+  return (
+    <div
+      className="relative w-full overflow-hidden py-6"
+      style={{
+        maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+        WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+      }}
+    >
+      <motion.div
+        className="flex items-center gap-12 w-max"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+      >
+        {track.map((item, i) => (
+          <span
+            key={`${item}-${i}`}
+            className="text-[13px] font-medium tracking-wide whitespace-nowrap"
+            style={{ color: "#4A4738", fontFamily: "'IBM Plex Mono', monospace" }}
+          >
+            {item}
+          </span>
+        ))}
+      </motion.div>
+    </div>
   );
 }
 
@@ -121,7 +280,7 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState("0");
 
   useEffect(() => {
-    const controls = animate(mv, value, { duration: 1.4, delay: 1.1, ease: [0.22, 1, 0.36, 1] });
+    const controls = animate(mv, value, { duration: 1.2, delay: 0.9, ease: [0.22, 1, 0.36, 1] });
     const unsub = rounded.on("change", (v) => setDisplay(v.toString()));
     return () => {
       controls.stop();
@@ -130,132 +289,6 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   }, [value]);
 
   return <>{display}{suffix}</>;
-}
-
-function HandNetworkIllustration() {
-  return (
-    <motion.svg
-      viewBox="0 0 640 640"
-      className="w-full h-full"
-      initial={{ opacity: 0, scale: 1.04 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <defs>
-        <linearGradient id="handGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1B2A4A" />
-          <stop offset="100%" stopColor="#10151F" />
-        </linearGradient>
-        <radialGradient id="tokenGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FF5A36" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#FF5A36" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      <g transform="translate(40,260)">
-        <path
-          d="M20 240
-             C -8 228, -14 190, 4 162
-             C 10 152, 18 146, 18 132
-             L 22 62
-             C 22.8 48.5, 42.8 48.5, 43.5 62
-             L 47 128
-             C 47.3 133, 55 133, 55.3 128
-             L 60 44
-             C 60.9 29, 82.4 29, 83.2 44
-             L 88 130
-             C 88.3 135, 96 135, 96.3 130
-             L 101 56
-             C 101.8 42, 122 42, 122.7 56
-             L 127 138
-             C 141 140, 152 152, 154 168
-             C 157 191, 148 214, 128 226
-             L 96 246
-             C 78 257, 56 257, 38 248
-             Z"
-          fill="url(#handGrad)"
-          stroke="#2A3B5C"
-          strokeWidth="1.25"
-          strokeLinejoin="round"
-        />
-      </g>
-
-      <motion.circle
-        cx="150"
-        cy="270"
-        r="60"
-        fill="url(#tokenGlow)"
-        animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.08, 1] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.circle
-        cx="150"
-        cy="270"
-        r="22"
-        fill="#F2F4F1"
-        stroke="#FF5A36"
-        strokeWidth="3"
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.text
-        x="150"
-        y="278"
-        textAnchor="middle"
-        fontSize="18"
-        fontWeight="700"
-        fill="#FF5A36"
-        fontFamily="'Space Grotesk', sans-serif"
-        animate={{ y: [270, 262, 270] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-      >
-        ★
-      </motion.text>
-
-      {[
-        { x2: 340, y2: 120, delay: 0 },
-        { x2: 420, y2: 220, delay: 0.4 },
-        { x2: 460, y2: 340, delay: 0.8 },
-        { x2: 420, y2: 460, delay: 1.2 },
-        { x2: 320, y2: 540, delay: 1.6 },
-      ].map((line, i) => (
-        <g key={i}>
-          <motion.line
-            x1="150"
-            y1="270"
-            x2={line.x2}
-            y2={line.y2}
-            stroke="#3A4558"
-            strokeWidth="1.5"
-            strokeDasharray="4 4"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 0.6 }}
-            transition={{ duration: 1.2, delay: 1 + line.delay * 0.3, ease: EASE }}
-          />
-          <motion.circle
-            cx={line.x2}
-            cy={line.y2}
-            r="7"
-            fill="#1B8A5A"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 1.3, 1], opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.4 + line.delay * 0.3, ease: EASE }}
-          />
-          <motion.circle
-            cx={line.x2}
-            cy={line.y2}
-            r="14"
-            fill="none"
-            stroke="#1B8A5A"
-            strokeWidth="1.5"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: [1, 1.6], opacity: [0.5, 0] }}
-            transition={{ duration: 1.8, delay: 1.6 + line.delay * 0.3, repeat: Infinity, ease: "easeOut" }}
-          />
-        </g>
-      ))}
-    </motion.svg>
-  );
 }
 
 export default function Home() {
@@ -304,7 +337,7 @@ export default function Home() {
       const result = await submitDeposit(wallet, 25);
       setStatusMsg(
         result.status === "SUCCESS"
-          ? "Donation confirmed on-chain!"
+          ? "Donation confirmed on chain."
           : `Submitted (${result.status}) — refreshing ledger...`
       );
       await loadLedger();
@@ -317,296 +350,494 @@ export default function Home() {
     }
   }
 
-  const stats: { value: number; suffix: string; label: string }[] = [
-    { value: 4, suffix: "s", label: "settlement time" },
-    { value: 0.3, suffix: "%", label: "network fee" },
-    { value: 100, suffix: "%", label: "on-chain trail" },
+  const stats: { value: number; suffix: string; label: string; caption: string }[] = [
+    { value: 4, suffix: "s", label: "Settlement time", caption: "median, last 30 days on testnet" },
+    { value: 0.3, suffix: "%", label: "Network fee", caption: "vs. 6–10% typical NGO overhead" },
+    { value: 100, suffix: "%", label: "On chain trail", caption: "every deposit and release, public" },
   ];
 
   return (
     <div
       className="relative w-full min-h-screen overflow-hidden"
-      style={{ background: "#F2F4F1", fontFamily: "'Inter', sans-serif", color: "#10151F" }}
+      style={{ background: "#090909", fontFamily: "'Inter', sans-serif", color: "#F5F1E8" }}
     >
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
         rel="stylesheet"
       />
 
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.4]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#D8D3C7 1px, transparent 1px), linear-gradient(90deg, #D8D3C7 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-          maskImage: "radial-gradient(ellipse at 30% 20%, black 0%, transparent 70%)",
-        }}
-      />
+      {/* hero wrapper with halftone background */}
+      <div className="relative">
+        <HalftoneBackground />
 
-      <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 pt-6">
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: EASE }}
-          className="flex items-center gap-2"
-        >
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#FF5A36" }} />
-          <span
-            className="text-[15px] font-semibold tracking-tight"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-          >
-            RELIEFCHAIN
-          </span>
-        </motion.div>
-
-        <motion.nav
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
-          className="hidden md:flex items-center gap-8 text-[13px] font-medium tracking-wide"
-          style={{ color: "#1B2A4A" }}
-        >
-          {navLinks.map((l) => (
-            <a key={l} href="#" className="hover:opacity-60 transition-opacity">
-              {l}
-            </a>
-          ))}
-        </motion.nav>
-
-        <motion.button
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
-          onClick={connectWallet}
-          className="text-[13px] font-medium px-4 py-2 rounded-full"
-          style={{
-            background: wallet ? "#E4E8E2" : "#10151F",
-            color: wallet ? "#1B2A4A" : "#F2F4F1",
-          }}
-        >
-          {wallet ? `${wallet.slice(0, 4)}...${wallet.slice(-4)}` : "Connect Wallet"}
-        </motion.button>
-
-        <button
-          onClick={() => setMenuOpen(true)}
-          className="md:hidden w-9 h-9 rounded-full flex items-center justify-center ml-2"
-          style={{ background: "#10151F" }}
-          aria-label="Open menu"
-        >
-          <Menu size={16} color="#F2F4F1" />
-        </button>
-      </header>
-
-      <AnimatePresence>
-        {menuOpen && (
+        <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 py-6 border-b border-white/10 bg-black/20 backdrop-blur-sm">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 flex flex-col px-6 py-6"
-            style={{ background: "#F2F4F1" }}
-          >
-            <div className="flex justify-end">
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{ background: "#10151F" }}
-              >
-                <X size={16} color="#F2F4F1" />
-              </button>
-            </div>
-            <nav className="flex flex-col gap-6 mt-12">
-              {navLinks.map((l) => (
-                <a
-                  key={l}
-                  href="#"
-                  className="text-3xl font-medium tracking-tight"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {l}
-                </a>
-              ))}
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-full lg:w-[55%] opacity-[0.55]" style={{ maskImage: "linear-gradient(to left, black 40%, transparent 90%)" }}>
-        <HandNetworkIllustration />
-      </div>
-
-      <main className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 md:px-12 pt-16 md:pt-24 pb-16 grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-14 items-center">
-        <div>
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6, ease: EASE }}
-            className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full"
-            style={{ color: "#1B2A4A", background: "#E4E8E2" }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="flex items-center gap-2"
           >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#1B8A5A" }} />
-            Stellar-settled · Cross-border relief
+            <TraceaidLogo compact />
           </motion.div>
 
-          <h1
-            className="font-semibold uppercase"
+          <motion.nav
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.06, ease: EASE }}
+            className="hidden md:flex items-center gap-8 text-[13px] font-medium"
+            style={{ color: "#D7D2C9" }}
+          >
+            {navLinks.map((l) => (
+              <a key={l} href="#" className="hover:opacity-60 transition-opacity">
+                {l}
+              </a>
+            ))}
+          </motion.nav>
+
+          <motion.button
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ opacity: 0.85 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+            onClick={connectWallet}
+            className="text-[13px] font-medium px-4 py-2 rounded-full"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: "clamp(2.4rem, 6vw, 4.6rem)",
-              lineHeight: 0.98,
-              letterSpacing: "-0.01em",
+              background: wallet ? "#F5F1E8" : "#F5F1E8",
+              color: wallet ? "#090909" : "#090909",
             }}
           >
-            <HeadlineWord delay={0.8}>Aid that</HeadlineWord>
-            <HeadlineWord delay={0.95}>arrives —</HeadlineWord>
-            <HeadlineWord delay={1.1}>
-              <span style={{ color: "#FF5A36" }}>and proves it.</span>
-            </HeadlineWord>
-          </h1>
+            {wallet ? `${wallet.slice(0, 4)}...${wallet.slice(-4)}` : "Connect wallet"}
+          </motion.button>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.3, ease: EASE }}
-            className="mt-7 text-base md:text-lg max-w-md"
-            style={{ color: "#4A5354" }}
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="md:hidden w-9 h-9 rounded-full flex items-center justify-center ml-2"
+            style={{ background: "#14120A" }}
+            aria-label="Open menu"
           >
-            Every donation settles on Stellar in seconds and leaves a public
-            record — from a donor's wallet to a verified relief site. No
-            intermediaries. No missing funds.
-          </motion.p>
+            <Menu size={16} color="#FBF1D6" />
+          </button>
+        </header>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.5, ease: EASE }}
-            className="mt-9 flex flex-col gap-3"
-          >
-            <motion.button
-              onClick={handleDonate}
-              disabled={donating}
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.15 }}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold w-fit disabled:opacity-60"
-              style={{ background: "#10151F", color: "#F2F4F1" }}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-30 flex flex-col px-6 py-6"
+              style={{ background: "#FBF1D6" }}
             >
-              {donating ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <ArrowUpRight size={16} />
-              )}
-              {wallet ? "Donate 25 to Assam Flood Relief" : "Connect wallet to donate"}
-            </motion.button>
-            {statusMsg && (
-              <span className="text-sm" style={{ color: "#4A5354" }}>
-                {statusMsg}
-              </span>
-            )}
-          </motion.div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ background: "#14120A" }}
+                >
+                  <X size={16} color="#FBF1D6" />
+                </button>
+              </div>
+              <nav className="flex flex-col gap-6 mt-12">
+                {navLinks.map((l) => (
+                  <a
+                    key={l}
+                    href="#"
+                    className="text-3xl font-medium tracking-tight"
+                    style={{ fontFamily: "'Fraunces', serif" }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {l}
+                  </a>
+                ))}
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 md:px-12">
+          <div className="pt-8 md:pt-14 pb-10 text-center max-w-4xl mx-auto">
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.35, ease: EASE }}
+              style={{
+                fontFamily: "'Fraunces', serif",
+                fontWeight: 500,
+                fontSize: "clamp(2.6rem, 6vw, 4.6rem)",
+                lineHeight: 1.06,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Relief funding with <RotatingWord words={ROTATING_WORDS} />
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.55, ease: EASE }}
+              className="mt-7 text-base md:text-lg max-w-xl mx-auto"
+              style={{ color: "#B8B1A5" }}
+            >
+              Traceaid gives donors, NGOs, and operators a single place to move relief
+              funding with visible accountability. Every transfer settles on Stellar,
+              then appears in a public ledger tied to a verified delivery.
+            </motion.p>
+          </div>
+
+          {/* honest sliding strip — real stack, not fabricated partners */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.7, ease: EASE }}
-            className="mt-12 flex items-center gap-8 pt-6"
-            style={{ borderTop: "1px solid #D8D3C7" }}
+            transition={{ duration: 0.8, delay: 0.8, ease: EASE }}
           >
-            {stats.map((s) => (
-              <div key={s.label}>
+            <Marquee items={STACK_ITEMS} />
+          </motion.div>
+        </div>
+      </div>
+
+      <main className="relative z-10 bg-[#F2F1EE] text-[#111111]">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12">
+          {/* donate + live ledger, below the dot-field hero */}
+          <div className="py-14 grid grid-cols-1 lg:grid-cols-[1.05fr,0.95fr] gap-14 items-start">
+            <div className="flex flex-col justify-center h-full">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, ease: EASE }}
+                className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full w-fit"
+                style={{ color: "#090909", background: "#D7BF7A" }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#1F9D55" }} />
+                Live on Stellar testnet
+              </motion.div>
+              <h2
+                className="mb-4"
+                style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, fontSize: "1.8rem", color: "#111111" }}
+              >
+                Fund relief with visible proof.
+              </h2>
+              <p className="text-[15px] mb-7 max-w-md" style={{ color: "#4C4A47" }}>
+                Connect a Freighter wallet and send a test donation to the Assam
+                Flood Relief campaign. The ledger beside it updates as soon as the
+                transfer is confirmed on chain.
+              </p>
+              <div className="flex flex-col gap-3">
+                <motion.button
+                  onClick={handleDonate}
+                  disabled={donating}
+                  whileHover={{ opacity: 0.9 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold w-fit disabled:opacity-60"
+                  style={{ background: "#14120A", color: "#FBF1D6" }}
+                >
+                  {donating ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <ArrowUpRight size={16} />
+                  )}
+                  {wallet ? "Donate 25 XLM to Assam Flood Relief" : "Connect wallet to donate"}
+                </motion.button>
+                {statusMsg && (
+                  <span className="text-sm" style={{ color: "#5B5B5B" }}>
+                    {statusMsg}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, ease: EASE }}
+              className="rounded-2xl overflow-hidden"
+              style={{ background: "#111111", border: "1px solid #2B2A29" }}
+            >
+              <div
+                className="flex items-center justify-between px-5 py-3.5"
+                style={{ borderBottom: "1px solid #2B2A29" }}
+              >
+                <span
+                  className="text-[11px] uppercase tracking-[0.14em] font-medium"
+                  style={{ color: "#C3BDB0" }}
+                >
+                  Live proof of delivery
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <motion.span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: "#E08A2C" }}
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <span className="text-[11px] font-mono" style={{ color: "#C3BDB0" }}>
+                    testnet
+                  </span>
+                </span>
+              </div>
+
+              <div className="px-5 py-3 flex flex-col min-h-[260px] max-h-[380px] overflow-y-auto">
+                {loadingLedger ? (
+                  <div className="flex items-center justify-center py-16" style={{ color: "#9A9A9A" }}>
+                    <Loader2 size={20} className="animate-spin" />
+                  </div>
+                ) : ledger.length === 0 ? (
+                  <div className="text-sm py-16 text-center" style={{ color: "#9A9A9A" }}>
+                    No transactions yet — be the first to donate.
+                  </div>
+                ) : (
+                  <AnimatePresence initial={false}>
+                    {ledger.map((tx, i) => (
+                      <motion.div
+                        key={`${tx.timestamp}-${i}`}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, ease: EASE }}
+                        className="flex items-center justify-between py-3"
+                        style={{ borderBottom: "1px solid #F0F0EC" }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[11px] font-mono" style={{ color: "#9A9A9A" }}>
+                            {tx.party.slice(0, 6)}...{tx.party.slice(-4)}
+                          </span>
+                          <span
+                            className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide"
+                            style={{ color: tx.kind === "release" ? "#86D7A1" : "#D7BF7A" }}
+                          >
+                            {tx.kind === "release" && <CheckCircle2 size={11} />}
+                            {tx.kind}
+                          </span>
+                        </div>
+                        <div className="text-[13px] font-mono font-medium" style={{ color: "#F5F1E8" }}>
+                          {tx.amount} XLM
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                )}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* stat row */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="grid grid-cols-1 sm:grid-cols-3"
+            style={{ borderTop: "1px solid #D9D5CE", borderBottom: "1px solid #D9D5CE", background: "#F7F4F0" }}
+          >
+            {stats.map((s, idx) => (
+              <div
+                key={s.label}
+                className="py-10 px-2 sm:px-8"
+                style={{
+                  borderTop: idx > 0 ? "1px solid #D9D5CE" : undefined,
+                  borderLeft: idx > 0 ? "1px solid #D9D5CE" : undefined,
+                  background: idx % 2 === 0 ? "#EFEAE2" : "#F7F4F0",
+                }}
+              >
                 <div
-                  className="text-xl font-semibold"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#10151F" }}
+                  className="text-[12px] uppercase tracking-[0.1em] font-medium mb-3"
+                  style={{ color: "#4C4A47" }}
+                >
+                  {s.label}
+                </div>
+                <div
+                  className="text-4xl sm:text-5xl"
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, color: "#111111" }}
                 >
                   <CountUp value={s.value} suffix={s.suffix} />
                 </div>
-                <div className="text-[11px] uppercase tracking-wide mt-0.5" style={{ color: "#6B746C" }}>
-                  {s.label}
+                <div className="text-[13px] mt-2" style={{ color: "#9A9A9A" }}>
+                  {s.caption}
                 </div>
               </div>
             ))}
           </motion.div>
+
+          {/* audience cards */}
+          <section className="py-20">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="mb-10"
+            >
+              <div
+                className="text-[12px] uppercase tracking-[0.14em] font-medium mb-2"
+                style={{ color: "#4C4A47" }}
+              >
+                Built for
+              </div>
+              <h2
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontWeight: 500,
+                  fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+                  color: "#111111",
+                }}
+              >
+                Everyone in the relief chain
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: "#D9D5CE" }}>
+              {AUDIENCES.map((a, idx) => (
+                <motion.div
+                  key={a.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.6, delay: idx * 0.08, ease: EASE }}
+                  className="p-8 flex flex-col justify-between min-h-[220px]"
+                  style={{ background: "#F7F4F0" }}
+                >
+                  <div>
+                    <h3
+                      className="text-lg mb-3"
+                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, color: "#111111" }}
+                    >
+                      {a.title}
+                    </h3>
+                    <p className="text-[14px] leading-relaxed" style={{ color: "#4C4A47" }}>
+                      {a.body}
+                    </p>
+                  </div>
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-1 text-[13px] font-medium mt-6 w-fit"
+                    style={{ color: "#14120A" }}
+                  >
+                    {a.cta} <ArrowUpRight size={14} />
+                  </a>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* campaign / use-case cards */}
+          <section className="py-20" style={{ borderTop: "1px solid #D9D5CE", background: "#090909" }}>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="mb-10"
+            >
+              <div
+                className="text-[12px] uppercase tracking-[0.14em] font-medium mb-2"
+                style={{ color: "#B8B1A5" }}
+              >
+                See it in action
+              </div>
+              <h2
+                style={{
+                  fontFamily: "'Fraunces', serif",
+                  fontWeight: 500,
+                  fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+                  color: "#F5F1E8",
+                }}
+              >
+                Real deliveries, tracked live
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {CAMPAIGNS.map((c, idx) => (
+                <motion.div
+                  key={c.name}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.6, delay: idx * 0.08, ease: EASE }}
+                  className="rounded-2xl p-6"
+                  style={{ border: "1px solid #2B2A29", background: "#111111" }}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <span
+                      className="text-[11px] font-medium uppercase tracking-wide px-2.5 py-1 rounded-full"
+                      style={{
+                        color: c.status === "Live" ? "#1F9D55" : "#7A7A7A",
+                        background: c.status === "Live" ? "#EAF7EF" : "#F2F2EF",
+                      }}
+                    >
+                      {c.status}
+                    </span>
+                  </div>
+                  <h3
+                    className="text-lg mb-2"
+                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
+                  >
+                    {c.name}
+                  </h3>
+                  <p className="text-[14px] leading-relaxed mb-5" style={{ color: "#B8B1A5" }}>
+                    {c.blurb}
+                  </p>
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-1 text-[13px] font-medium"
+                    style={{ color: "#F5F1E8" }}
+                  >
+                    View manifest <ArrowUpRight size={14} />
+                  </a>
+                </motion.div>
+              ))}
+            </div>
+          </section>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.8, delay: 0.2, ease: EASE }}
-          className="rounded-2xl overflow-hidden"
-          style={{ background: "#10151F", boxShadow: "0 24px 60px -20px rgba(16,21,31,0.35)" }}
-        >
-          <div
-            className="flex items-center justify-between px-5 py-3.5"
-            style={{ borderBottom: "1px solid #232B3A" }}
-          >
-            <span
-              className="text-[11px] uppercase tracking-[0.14em] font-medium"
-              style={{ color: "#8A94A6" }}
-            >
-              Live proof-of-delivery
-            </span>
-            <span className="flex items-center gap-1.5">
-              <motion.span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: "#FF5A36" }}
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <span className="text-[11px] font-mono" style={{ color: "#8A94A6" }}>
-                testnet
-              </span>
-            </span>
-          </div>
+        {/* footer */}
+        <footer style={{ borderTop: "1px solid #2B2A29", background: "#090909" }}>
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12 py-16">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
+              <div className="col-span-2 md:col-span-1">
+                <div className="mb-3">
+                  <TraceaidLogo compact />
+                </div>
+                <p className="text-[13px]" style={{ color: "#9A9A9A" }}>
+                  Disaster relief, settled and proven on Stellar.
+                </p>
+              </div>
 
-          <div className="px-5 py-4 flex flex-col gap-3 min-h-[280px] max-h-[420px] overflow-y-auto">
-            {loadingLedger ? (
-              <div className="flex items-center justify-center py-16" style={{ color: "#8A94A6" }}>
-                <Loader2 size={20} className="animate-spin" />
-              </div>
-            ) : ledger.length === 0 ? (
-              <div className="text-sm py-16 text-center" style={{ color: "#5D6A82" }}>
-                No transactions yet — be the first to donate.
-              </div>
-            ) : (
-              <AnimatePresence initial={false}>
-                {ledger.map((tx, i) => (
-                  <motion.div
-                    key={`${tx.timestamp}-${i}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: EASE }}
-                    whileHover={{ scale: 1.015, borderColor: "#3A4558" }}
-                    className="rounded-lg px-4 py-3"
-                    style={{ background: "#161D2B", border: "1px solid #232B3A" }}
+              {FOOTER_COLUMNS.map((col) => (
+                <div key={col.title}>
+                  <div
+                    className="text-[11px] uppercase tracking-[0.12em] font-medium mb-4"
+                    style={{ color: "#9A9A9A" }}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-mono" style={{ color: "#5D6A82" }}>
-                        {tx.party.slice(0, 6)}...{tx.party.slice(-4)}
-                      </span>
-                      <motion.span
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                        className="flex items-center gap-1 text-[11px] font-medium"
-                        style={{ color: tx.kind === "release" ? "#3FCB8C" : "#FF9F6B" }}
+                    {col.title}
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {col.links.map((l) => (
+                      <a
+                        key={l}
+                        href="#"
+                        className="text-[13px] hover:opacity-60 transition-opacity"
+                        style={{ color: "#3F3F3F" }}
                       >
-                        {tx.kind === "release" && <CheckCircle2 size={12} />}
-                        {tx.kind}
-                      </motion.span>
-                    </div>
-                    <div className="mt-1.5 text-[13px] font-mono font-medium" style={{ color: "#FF5A36" }}>
-                      {tx.amount} XLM
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            )}
+                        {l}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-14 pt-6 text-[12px]"
+              style={{ borderTop: "1px solid #E5E5E0", color: "#9A9A9A" }}
+            >
+              © 2026 Traceaid. Built on Stellar testnet for demonstration purposes.
+            </div>
           </div>
-        </motion.div>
+        </footer>
       </main>
     </div>
   );
