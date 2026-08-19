@@ -20,17 +20,16 @@ const NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
 const CAMPAIGN_ID = "assam_floods";
 
 // ---- design tokens -------------------------------------------------------
-// base      #090909   page background
-// panel     #111111   elevated surfaces
-// panelAlt  #171717   secondary surfaces
-// ink       #F5F1E8   primary text
-// mute      #B8B1A5   secondary text
-// hairline  #2B2A29   dividers / borders
-// signal    #D7BF7A   premium accent
-// verified  #86D7A1   confirmed release state
+// cream     #FBF1D6   hero background (halftone dot field sits on this)
+// dot       #E9C96B   halftone dot color
+// ink       #14120A   primary text
+// mute      #6B675A   secondary text
+// hairline  #E5E5E0   dividers / borders (white sections below hero)
+// signal    #E08A2C   single accent, used sparingly
+// verified  #1F9D55   reserved only for confirmed on-chain releases
 // -------------------------------------------------------------------------
 
-const ROTATING_WORDS = ["verified delivery.", "real-time visibility.", "clear accountability.", "trusted settlement."];
+const ROTATING_WORDS = ["verified delivery.", "public proof.", "zero overhead.", "the ledger."];
 
 // Honest — this is your real stack, not fabricated partner logos.
 const STACK_ITEMS = ["Stellar Network", "Soroban", "Freighter Wallet", "Testnet Live", "Next.js", "TypeScript"];
@@ -165,11 +164,11 @@ function HalftoneBackground() {
     <div
       className="pointer-events-none absolute inset-0"
       style={{
-        backgroundColor: "#090909",
-        backgroundImage: "radial-gradient(rgba(215, 191, 122, 0.18) 1.1px, transparent 1.1px)",
-        backgroundSize: "18px 18px",
-        maskImage: "linear-gradient(to bottom, black 58%, transparent 98%)",
-        WebkitMaskImage: "linear-gradient(to bottom, black 58%, transparent 98%)",
+        backgroundColor: "#FBF1D6",
+        backgroundImage: "radial-gradient(#E9C96B 1.5px, transparent 1.5px)",
+        backgroundSize: "16px 16px",
+        maskImage: "linear-gradient(to bottom, black 55%, transparent 96%)",
+        WebkitMaskImage: "linear-gradient(to bottom, black 55%, transparent 96%)",
       }}
     />
   );
@@ -181,11 +180,11 @@ function TraceaidLogo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <svg width={size} height={size} viewBox="0 0 48 48" aria-label="Traceaid logo" role="img">
-        <rect x="3" y="3" width="42" height="42" rx="12" fill="#F5F1E8" />
+        <rect x="3" y="3" width="42" height="42" rx="12" fill="#14120A" />
         <path
           d="M14 15.5h20M19 15.5V31M15 31h18M15 31l4.8-7h8.4L33 31"
           fill="none"
-          stroke="#090909"
+          stroke="#FBF1D6"
           strokeWidth="2.8"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -193,12 +192,12 @@ function TraceaidLogo({ compact = false }: { compact?: boolean }) {
         <path
           d="M31 11.5L36.5 16M36.5 11.5V16H31"
           fill="none"
-          stroke="#D7BF7A"
+          stroke="#E08A2C"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <circle cx="16.5" cy="18.5" r="3" fill="#D7BF7A" />
+        <circle cx="16.5" cy="18.5" r="3" fill="#E9C96B" />
       </svg>
       <span
         className="tracking-tight"
@@ -207,7 +206,7 @@ function TraceaidLogo({ compact = false }: { compact?: boolean }) {
           fontWeight: 500,
           fontSize: compact ? "1rem" : "1.1rem",
           letterSpacing: "-0.04em",
-          color: "#F5F1E8",
+          color: "#14120A",
         }}
       >
         Traceaid
@@ -234,7 +233,7 @@ function RotatingWord({ words }: { words: string[] }) {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.4, ease: EASE }}
           className="inline-block italic"
-          style={{ color: "#D7BF7A" }}
+          style={{ color: "#E08A2C" }}
         >
           {words[i]}
         </motion.span>
@@ -359,7 +358,7 @@ export default function Home() {
   return (
     <div
       className="relative w-full min-h-screen overflow-hidden"
-      style={{ background: "#090909", fontFamily: "'Inter', sans-serif", color: "#F5F1E8" }}
+      style={{ background: "#FFFFFF", fontFamily: "'Inter', sans-serif", color: "#14120A" }}
     >
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link
@@ -371,7 +370,7 @@ export default function Home() {
       <div className="relative">
         <HalftoneBackground />
 
-        <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 py-6 border-b border-white/10 bg-black/20 backdrop-blur-sm">
+        <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 py-6">
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -386,7 +385,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.06, ease: EASE }}
             className="hidden md:flex items-center gap-8 text-[13px] font-medium"
-            style={{ color: "#D7D2C9" }}
+            style={{ color: "#3F3B2C" }}
           >
             {navLinks.map((l) => (
               <a key={l} href="#" className="hover:opacity-60 transition-opacity">
@@ -404,8 +403,8 @@ export default function Home() {
             onClick={connectWallet}
             className="text-[13px] font-medium px-4 py-2 rounded-full"
             style={{
-              background: wallet ? "#F5F1E8" : "#F5F1E8",
-              color: wallet ? "#090909" : "#090909",
+              background: wallet ? "#F2ECD3" : "#14120A",
+              color: wallet ? "#14120A" : "#FBF1D6",
             }}
           >
             {wallet ? `${wallet.slice(0, 4)}...${wallet.slice(-4)}` : "Connect wallet"}
@@ -470,7 +469,7 @@ export default function Home() {
                 letterSpacing: "-0.01em",
               }}
             >
-              Relief funding with <RotatingWord words={ROTATING_WORDS} />
+              Where relief funding meets <RotatingWord words={ROTATING_WORDS} />
             </motion.h1>
 
             <motion.p
@@ -478,11 +477,11 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.55, ease: EASE }}
               className="mt-7 text-base md:text-lg max-w-xl mx-auto"
-              style={{ color: "#B8B1A5" }}
+              style={{ color: "#4A4738" }}
             >
-              Traceaid gives donors, NGOs, and operators a single place to move relief
-              funding with visible accountability. Every transfer settles on Stellar,
-              then appears in a public ledger tied to a verified delivery.
+              Traceaid settles every donation on Stellar in seconds and logs
+              it to a public ledger — from a donor's wallet to a verified
+              relief site. No intermediaries, no missing funds.
             </motion.p>
           </div>
 
@@ -497,7 +496,7 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="relative z-10 bg-[#F2F1EE] text-[#111111]">
+      <main className="relative z-10">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12">
           {/* donate + live ledger, below the dot-field hero */}
           <div className="py-14 grid grid-cols-1 lg:grid-cols-[1.05fr,0.95fr] gap-14 items-start">
@@ -508,21 +507,21 @@ export default function Home() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, ease: EASE }}
                 className="inline-flex items-center gap-2 text-[11px] font-medium tracking-[0.14em] uppercase mb-6 px-3 py-1.5 rounded-full w-fit"
-                style={{ color: "#090909", background: "#D7BF7A" }}
+                style={{ color: "#3F3B2C", background: "#F2ECD3" }}
               >
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#1F9D55" }} />
                 Live on Stellar testnet
               </motion.div>
               <h2
                 className="mb-4"
-                style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, fontSize: "1.8rem", color: "#111111" }}
+                style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, fontSize: "1.8rem" }}
               >
-                Fund relief with visible proof.
+                Send a donation, see it settle.
               </h2>
-              <p className="text-[15px] mb-7 max-w-md" style={{ color: "#4C4A47" }}>
+              <p className="text-[15px] mb-7 max-w-md" style={{ color: "#5B5B5B" }}>
                 Connect a Freighter wallet and send a test donation to the Assam
-                Flood Relief campaign. The ledger beside it updates as soon as the
-                transfer is confirmed on chain.
+                Flood Relief campaign — the manifest on the right updates the
+                moment it confirms on chain.
               </p>
               <div className="flex flex-col gap-3">
                 <motion.button
@@ -555,15 +554,15 @@ export default function Home() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.7, ease: EASE }}
               className="rounded-2xl overflow-hidden"
-              style={{ background: "#111111", border: "1px solid #2B2A29" }}
+              style={{ background: "#FFFFFF", border: "1px solid #E5E5E0" }}
             >
               <div
                 className="flex items-center justify-between px-5 py-3.5"
-                style={{ borderBottom: "1px solid #2B2A29" }}
+                style={{ borderBottom: "1px solid #E5E5E0" }}
               >
                 <span
                   className="text-[11px] uppercase tracking-[0.14em] font-medium"
-                  style={{ color: "#C3BDB0" }}
+                  style={{ color: "#7A7A7A" }}
                 >
                   Live proof of delivery
                 </span>
@@ -574,7 +573,7 @@ export default function Home() {
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  <span className="text-[11px] font-mono" style={{ color: "#C3BDB0" }}>
+                  <span className="text-[11px] font-mono" style={{ color: "#7A7A7A" }}>
                     testnet
                   </span>
                 </span>
@@ -606,13 +605,13 @@ export default function Home() {
                           </span>
                           <span
                             className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide"
-                            style={{ color: tx.kind === "release" ? "#86D7A1" : "#D7BF7A" }}
+                            style={{ color: tx.kind === "release" ? "#1F9D55" : "#E08A2C" }}
                           >
                             {tx.kind === "release" && <CheckCircle2 size={11} />}
                             {tx.kind}
                           </span>
                         </div>
-                        <div className="text-[13px] font-mono font-medium" style={{ color: "#F5F1E8" }}>
+                        <div className="text-[13px] font-mono font-medium" style={{ color: "#14120A" }}>
                           {tx.amount} XLM
                         </div>
                       </motion.div>
@@ -630,27 +629,26 @@ export default function Home() {
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.7, ease: EASE }}
             className="grid grid-cols-1 sm:grid-cols-3"
-            style={{ borderTop: "1px solid #D9D5CE", borderBottom: "1px solid #D9D5CE", background: "#F7F4F0" }}
+            style={{ borderTop: "1px solid #E5E5E0", borderBottom: "1px solid #E5E5E0" }}
           >
             {stats.map((s, idx) => (
               <div
                 key={s.label}
                 className="py-10 px-2 sm:px-8"
                 style={{
-                  borderTop: idx > 0 ? "1px solid #D9D5CE" : undefined,
-                  borderLeft: idx > 0 ? "1px solid #D9D5CE" : undefined,
-                  background: idx % 2 === 0 ? "#EFEAE2" : "#F7F4F0",
+                  borderTop: idx > 0 ? "1px solid #E5E5E0" : undefined,
+                  borderLeft: idx > 0 ? "1px solid #E5E5E0" : undefined,
                 }}
               >
                 <div
                   className="text-[12px] uppercase tracking-[0.1em] font-medium mb-3"
-                  style={{ color: "#4C4A47" }}
+                  style={{ color: "#7A7A7A" }}
                 >
                   {s.label}
                 </div>
                 <div
                   className="text-4xl sm:text-5xl"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, color: "#111111" }}
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, color: "#14120A" }}
                 >
                   <CountUp value={s.value} suffix={s.suffix} />
                 </div>
@@ -672,7 +670,7 @@ export default function Home() {
             >
               <div
                 className="text-[12px] uppercase tracking-[0.14em] font-medium mb-2"
-                style={{ color: "#4C4A47" }}
+                style={{ color: "#7A7A7A" }}
               >
                 Built for
               </div>
@@ -681,14 +679,13 @@ export default function Home() {
                   fontFamily: "'Fraunces', serif",
                   fontWeight: 500,
                   fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
-                  color: "#111111",
                 }}
               >
                 Everyone in the relief chain
               </h2>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: "#D9D5CE" }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: "#E5E5E0" }}>
               {AUDIENCES.map((a, idx) => (
                 <motion.div
                   key={a.title}
@@ -697,16 +694,16 @@ export default function Home() {
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.6, delay: idx * 0.08, ease: EASE }}
                   className="p-8 flex flex-col justify-between min-h-[220px]"
-                  style={{ background: "#F7F4F0" }}
+                  style={{ background: "#FFFFFF" }}
                 >
                   <div>
                     <h3
                       className="text-lg mb-3"
-                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, color: "#111111" }}
+                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
                     >
                       {a.title}
                     </h3>
-                    <p className="text-[14px] leading-relaxed" style={{ color: "#4C4A47" }}>
+                    <p className="text-[14px] leading-relaxed" style={{ color: "#5B5B5B" }}>
                       {a.body}
                     </p>
                   </div>
@@ -723,7 +720,7 @@ export default function Home() {
           </section>
 
           {/* campaign / use-case cards */}
-          <section className="py-20" style={{ borderTop: "1px solid #D9D5CE", background: "#090909" }}>
+          <section className="py-20" style={{ borderTop: "1px solid #E5E5E0" }}>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -733,7 +730,7 @@ export default function Home() {
             >
               <div
                 className="text-[12px] uppercase tracking-[0.14em] font-medium mb-2"
-                style={{ color: "#B8B1A5" }}
+                style={{ color: "#7A7A7A" }}
               >
                 See it in action
               </div>
@@ -742,7 +739,6 @@ export default function Home() {
                   fontFamily: "'Fraunces', serif",
                   fontWeight: 500,
                   fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
-                  color: "#F5F1E8",
                 }}
               >
                 Real deliveries, tracked live
@@ -758,7 +754,7 @@ export default function Home() {
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.6, delay: idx * 0.08, ease: EASE }}
                   className="rounded-2xl p-6"
-                  style={{ border: "1px solid #2B2A29", background: "#111111" }}
+                  style={{ border: "1px solid #E5E5E0" }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <span
@@ -777,13 +773,13 @@ export default function Home() {
                   >
                     {c.name}
                   </h3>
-                  <p className="text-[14px] leading-relaxed mb-5" style={{ color: "#B8B1A5" }}>
+                  <p className="text-[14px] leading-relaxed mb-5" style={{ color: "#5B5B5B" }}>
                     {c.blurb}
                   </p>
                   <a
                     href="#"
                     className="inline-flex items-center gap-1 text-[13px] font-medium"
-                    style={{ color: "#F5F1E8" }}
+                    style={{ color: "#14120A" }}
                   >
                     View manifest <ArrowUpRight size={14} />
                   </a>
@@ -794,7 +790,7 @@ export default function Home() {
         </div>
 
         {/* footer */}
-        <footer style={{ borderTop: "1px solid #2B2A29", background: "#090909" }}>
+        <footer style={{ borderTop: "1px solid #E5E5E0", background: "#FAFAF8" }}>
           <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12 py-16">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
               <div className="col-span-2 md:col-span-1">
