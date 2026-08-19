@@ -141,6 +141,76 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   return <>{display}{suffix}</>;
 }
 
+function FloatingToken({
+  label,
+  color,
+  delay,
+  className,
+}: {
+  label: string;
+  color: string;
+  delay: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{
+        opacity: [0.7, 1, 0.7],
+        y: [0, -12, 0],
+        x: [0, 8, 0],
+        scale: [1, 1.04, 1],
+      }}
+      transition={{
+        duration: 4,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+      className={`absolute flex items-center gap-2 rounded-full border px-2.5 py-1.5 backdrop-blur-sm ${className}`}
+      style={{
+        background: "rgba(11, 15, 22, 0.72)",
+        borderColor: `${color}55`,
+        boxShadow: `0 0 25px -10px ${color}`,
+      }}
+    >
+      <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+      <span
+        className="text-[10px] tracking-[0.16em] uppercase"
+        style={{ fontFamily: "'JetBrains Mono', monospace", color: "#E9EEF5" }}
+      >
+        {label}
+      </span>
+    </motion.div>
+  );
+}
+
+function OrbitalCryptoLayer() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <motion.div
+        className="absolute right-[8%] top-[18%] h-[340px] w-[340px] rounded-full border"
+        style={{ borderColor: "rgba(62,230,255,0.18)", boxShadow: "inset 0 0 28px rgba(62,230,255,0.08)" }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div
+        className="absolute right-[15%] top-[24%] h-[220px] w-[220px] rounded-full border"
+        style={{ borderColor: "rgba(139,124,255,0.18)" }}
+        animate={{ rotate: -360 }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+      />
+
+      <FloatingToken label="BTC" color="#F7931A" delay={0.2} className="right-[22%] top-[12%]" />
+      <FloatingToken label="ETH" color="#6CC6FF" delay={1.1} className="right-[8%] top-[38%]" />
+      <FloatingToken label="SOL" color="#7DFFB0" delay={0.7} className="right-[25%] top-[58%]" />
+      <FloatingToken label="USDC" color="#4AD6A7" delay={1.8} className="right-[5%] top-[62%]" />
+      <FloatingToken label="ADA" color="#2CC8FF" delay={2.3} className="right-[31%] top-[32%]" />
+      <FloatingToken label="XLM" color="#A5F3FC" delay={3.1} className="right-[12%] top-[20%]" />
+    </div>
+  );
+}
+
 function ParticleNetwork() {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
@@ -369,6 +439,7 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 opacity-90">
         <ParticleNetwork />
       </div>
+      <OrbitalCryptoLayer />
 
       {/* nav */}
       <header className="relative z-20 flex items-center justify-between px-5 sm:px-8 md:px-12 pt-6">
@@ -536,6 +607,38 @@ export default function Home() {
               {donating ? <Loader2 size={16} className="animate-spin" /> : <ArrowUpRight size={16} />}
               {wallet ? "DONATE 25 · ASSAM FLOOD RELIEF" : "CONNECT WALLET TO DONATE"}
             </motion.button>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 1.8, ease: EASE }}
+              className="flex flex-wrap items-center gap-2"
+            >
+              {[
+                "BTC",
+                "ETH",
+                "SOL",
+                "XLM",
+                "USDC",
+              ].map((token, index) => (
+                <motion.span
+                  key={token}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 1.9 + index * 0.1 }}
+                  className="rounded-full border px-2 py-1 text-[9px] tracking-[0.12em] uppercase"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    borderColor: "rgba(62,230,255,0.25)",
+                    color: TEXT_MID,
+                    background: "rgba(11,15,22,0.6)",
+                  }}
+                >
+                  {token}
+                </motion.span>
+              ))}
+            </motion.div>
+
             {statusMsg && (
               <span
                 className="text-[11px] tracking-[0.08em]"
