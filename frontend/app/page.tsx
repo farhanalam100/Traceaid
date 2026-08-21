@@ -480,7 +480,7 @@ export default function Home() {
               style={{ color: "#4A4738" }}
             >
               Traceaid settles every donation on Stellar in seconds and logs
-              it to a public ledger — from a donor's wallet to a verified
+              it to a public ledger from a donor's wallet to a verified
               relief site. No intermediaries, no missing funds.
             </motion.p>
           </div>
@@ -520,7 +520,7 @@ export default function Home() {
               </h2>
               <p className="text-[15px] mb-7 max-w-md" style={{ color: "#5B5B5B" }}>
                 Connect a Freighter wallet and send a test donation to the Assam
-                Flood Relief campaign — the manifest on the right updates the
+                Flood Relief campaign, and the manifest on the right updates the
                 moment it confirms on chain.
               </p>
               <div className="flex flex-col gap-3">
@@ -586,7 +586,7 @@ export default function Home() {
                   </div>
                 ) : ledger.length === 0 ? (
                   <div className="text-sm py-16 text-center" style={{ color: "#9A9A9A" }}>
-                    No transactions yet — be the first to donate.
+                    No transactions yet, be the first to donate.
                   </div>
                 ) : (
                   <AnimatePresence initial={false}>
