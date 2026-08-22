@@ -77,6 +77,89 @@ const FOOTER_COLUMNS = [
   { title: "Connect", links: ["Community", "Code of conduct", "FAQ"] },
 ];
 
+const FOOTER_DETAILS: Record<string, Record<string, { eyebrow: string; title: string; body: string; cta: string }>> = {
+  About: {
+    "The protocol": {
+      eyebrow: "About",
+      title: "The protocol",
+      body: "Traceaid uses Stellar and Soroban to move donor funds into verified relief campaigns with public proof of every deposit, release, and milestone. The protocol reduces delays and replaces manual trust chains with on-chain transparency.",
+      cta: "See the flow",
+    },
+    Team: {
+      eyebrow: "About",
+      title: "Team",
+      body: "The Traceaid team is built around humanitarian operations, blockchain infrastructure, and field verification. We connect donors, NGOs, and local coordinators so funding reaches the right place at the right time.",
+      cta: "Meet the team",
+    },
+    Careers: {
+      eyebrow: "About",
+      title: "Careers",
+      body: "We are hiring across product, protocol, and field deployment. If you care about transparent funding, crisis response, and resilient public infrastructure, Traceaid is building for the next generation of global aid logistics.",
+      cta: "Join us",
+    },
+  },
+  "Use cases": {
+    "Disaster relief": {
+      eyebrow: "Use case",
+      title: "Disaster relief",
+      body: "When floods, cyclones, or droughts hit a region, Traceaid can route donor money into verified local sites and publish a live ledger of where every dollar or token has gone. Relief organizations can act faster with more accountability.",
+      cta: "View relief flow",
+    },
+    "Cross border aid": {
+      eyebrow: "Use case",
+      title: "Cross border aid",
+      body: "International donors often face friction, delays, and opacity. Traceaid brings a shared, auditable trail between funders and field teams so aid can move across borders with clear compliance and settlement visibility.",
+      cta: "Open the network",
+    },
+    "Verified NGOs": {
+      eyebrow: "Use case",
+      title: "Verified NGOs",
+      body: "NGOs can publish verified partners, attach completion checkpoints, and supply stronger proof of outcomes. Donors can track whether funds are supporting the exact program they intended to back.",
+      cta: "See validation",
+    },
+  },
+  Developers: {
+    Docs: {
+      eyebrow: "Developers",
+      title: "Docs",
+      body: "Traceaid exposes a clear developer workflow for building aid applications on Stellar. Explore contract interfaces, wallet interactions, ledger structures, and sample deployment patterns for testing and integration.",
+      cta: "Read docs",
+    },
+    "Soroban contract": {
+      eyebrow: "Developers",
+      title: "Soroban contract",
+      body: "The Soroban smart contract handles campaign registration, donor deposits, and milestone-based release logic. It is designed to keep funds traceable while preserving public auditability for the entire chain of events.",
+      cta: "Inspect contract",
+    },
+    "API reference": {
+      eyebrow: "Developers",
+      title: "API reference",
+      body: "The API reference covers account access, ledger reads, transaction submission, and campaign status queries. It gives builders the exact hooks needed to integrate Traceaid features into wallets, dashboards, and monitoring tools.",
+      cta: "Open API",
+    },
+  },
+  Connect: {
+    Community: {
+      eyebrow: "Connect",
+      title: "Community",
+      body: "Join the growing network of donors, NGOs, developers, and crisis-response partners building transparent aid systems. Discussion, updates, and collaboration happen in the open community channels.",
+      cta: "Join community",
+    },
+    "Code of conduct": {
+      eyebrow: "Connect",
+      title: "Code of conduct",
+      body: "Traceaid is guided by respectful, inclusive, and transparent collaboration. The code of conduct helps maintain a safe space for contributors, operators, and mission-driven partners across the ecosystem.",
+      cta: "Review policy",
+    },
+    FAQ: {
+      eyebrow: "Connect",
+      title: "FAQ",
+      body: "Questions often come down to how funds are protected, how ledger data is verified, and how the protocol works in practice. The FAQ explains the flow from donation to settlement and reporting in plain language.",
+      cta: "Read FAQ",
+    },
+  },
+};
+
 type LedgerRecord = {
   amount: string;
   campaign_id: string;
@@ -1002,24 +1085,28 @@ export default function Home() {
                     {col.title}
                   </div>
                   <div className="flex flex-col gap-3">
-                    {col.links.map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() =>
-                          openDetailModal(
-                            col.title,
-                            l,
-                            `${l} is part of the Traceaid ${col.title.toLowerCase()} ecosystem. This section explains how the protocol supports donors, NGOs, and developers in real-time relief delivery.`,
-                            "Explore"
-                          )
-                        }
-                        className="text-left text-[13px] hover:opacity-60 transition-opacity"
-                        style={{ color: "#3F3F3F" }}
-                      >
-                        {l}
-                      </button>
-                    ))}
+                    {col.links.map((l) => {
+                      const detail = FOOTER_DETAILS[col.title]?.[l] ?? {
+                        eyebrow: col.title,
+                        title: l,
+                        body: "This section explains how Traceaid supports real-world relief operations through transparent funding and public accountability.",
+                        cta: "Explore",
+                      };
+
+                      return (
+                        <button
+                          key={l}
+                          type="button"
+                          onClick={() =>
+                            openDetailModal(detail.eyebrow, detail.title, detail.body, detail.cta)
+                          }
+                          className="text-left text-[13px] hover:opacity-60 transition-opacity"
+                          style={{ color: "#3F3F3F" }}
+                        >
+                          {l}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
