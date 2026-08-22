@@ -1003,15 +1003,22 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col gap-3">
                     {col.links.map((l) => (
-                      <a
+                      <button
                         key={l}
-                        href="#"
-                        onClick={(event) => event.preventDefault()}
-                        className="text-[13px] hover:opacity-60 transition-opacity"
+                        type="button"
+                        onClick={() =>
+                          openDetailModal(
+                            col.title,
+                            l,
+                            `${l} is part of the Traceaid ${col.title.toLowerCase()} ecosystem. This section explains how the protocol supports donors, NGOs, and developers in real-time relief delivery.`,
+                            "Explore"
+                          )
+                        }
+                        className="text-left text-[13px] hover:opacity-60 transition-opacity"
                         style={{ color: "#3F3F3F" }}
                       >
                         {l}
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </div>
