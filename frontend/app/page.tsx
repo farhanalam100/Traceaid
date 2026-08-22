@@ -510,6 +510,53 @@ export default function Home() {
     { value: 100, suffix: "%", label: "On chain trail", caption: "every deposit and release, public" },
   ];
 
+  const getDetailPoints = (eyebrow: string, title: string) => {
+    const base = [
+      "Public audit trail",
+      "Live operational visibility",
+      "Relief-first structure",
+      "Transparent flow of funds",
+    ];
+
+    if (eyebrow === "Use case") {
+      return [
+        "Field-ready aid workflows",
+        "Fast donor-to-recipient flow",
+        "Verification checkpoints",
+        "Program-specific reporting",
+      ];
+    }
+
+    if (eyebrow === "Developers") {
+      return [
+        "Contract interfaces",
+        "Wallet compatibility",
+        "API access",
+        "Open integration path",
+      ];
+    }
+
+    if (eyebrow === "Connect") {
+      return [
+        "Community-driven updates",
+        "Open contributor standards",
+        "Participation pathways",
+        "Transparent collaboration",
+      ];
+    }
+
+    if (title.toLowerCase().includes("team") || title.toLowerCase().includes("careers")) {
+      return [
+        "Mission-led operation",
+        "Cross-functional collaboration",
+        "Shared delivery goals",
+        "Humanitarian field focus",
+      ];
+    }
+
+    return base;
+  };
+
   return (
     <div
       className="relative w-full min-h-screen overflow-hidden"
@@ -703,27 +750,52 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 12, scale: 0.98 }}
                 transition={{ duration: 0.2, ease: EASE }}
-                className="w-full max-w-3xl max-h-[82vh] overflow-y-auto rounded-[28px] border border-[#E5E5E0] bg-[#FBF1D6] p-7 shadow-[0_30px_80px_rgba(20,18,10,0.2)]"
+                className="w-full max-w-5xl max-h-[88vh] overflow-y-auto rounded-[30px] border border-[#E5E5E0] bg-[#FBF1D6] p-7 sm:p-8 md:p-10 shadow-[0_30px_80px_rgba(20,18,10,0.2)]"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.14em]" style={{ color: "#7A7A7A" }}>
-                  {modalContent.eyebrow}
+                <div className="flex items-center justify-between gap-4 pb-4">
+                  <div className="text-[11px] font-medium uppercase tracking-[0.14em]" style={{ color: "#7A7A7A" }}>
+                    {modalContent.eyebrow}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalContent(null)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#14120A] text-[#14120A]"
+                    aria-label="Close modal"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
+
                 <h3
-                  className="mb-4"
+                  className="mb-5"
                   style={{
                     fontFamily: "'Fraunces', serif",
                     fontWeight: 500,
-                    fontSize: "clamp(2.1rem, 4vw, 3.2rem)",
-                    lineHeight: 1.1,
+                    fontSize: "clamp(2.3rem, 5vw, 4rem)",
+                    lineHeight: 1.05,
                   }}
                 >
                   {modalContent.title}
                 </h3>
-                <p className="text-[16px] leading-relaxed" style={{ color: "#4A4738" }}>
+
+                <p className="text-[16px] leading-relaxed md:text-[17px]" style={{ color: "#4A4738" }}>
                   {modalContent.body}
                 </p>
-                <div className="mt-8 flex items-center justify-between gap-4">
+
+                <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {getDetailPoints(modalContent.eyebrow, modalContent.title).map((point) => (
+                    <div
+                      key={point}
+                      className="rounded-2xl border border-[#E5E5E0] bg-[#F8F3E7] px-4 py-3 text-[14px]"
+                      style={{ color: "#2D2A24" }}
+                    >
+                      {point}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-9 flex items-center justify-between gap-4 border-t border-[#E5E5E0] pt-6">
                   <button
                     type="button"
                     onClick={() => setModalContent(null)}
