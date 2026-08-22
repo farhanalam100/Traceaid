@@ -298,8 +298,19 @@ export default function Home() {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [modalContent, setModalContent] = useState<{
+    eyebrow: string;
+    title: string;
+    body: string;
+    cta: string;
+  } | null>(null);
 
-  const navLinks = ["Ledger", "Campaigns", "Protocol", "Team"];
+  const navLinks = [
+    { label: "Ledger", id: "ledger" },
+    { label: "Campaigns", id: "campaigns" },
+    { label: "Protocol", id: "protocol" },
+    { label: "Team", id: "team" },
+  ];
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -319,6 +330,20 @@ export default function Home() {
       setLoadingLedger(false);
     }
   }, []);
+
+  const scrollToSection = useCallback((id: string) => {
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
+  const openDetailModal = useCallback(
+    (eyebrow: string, title: string, body: string, cta: string) => {
+      setModalContent({ eyebrow, title, body, cta });
+    },
+    []
+  );
 
   useEffect(() => {
     loadLedger();
@@ -436,12 +461,15 @@ export default function Home() {
           >
             {navLinks.map((l) => (
               <a
-                key={l}
-                href="#"
-                onClick={(event) => event.preventDefault()}
+                key={l.label}
+                href={`#${l.id}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  scrollToSection(l.id);
+                }}
                 className="hover:opacity-60 transition-opacity"
               >
-                {l}
+                {l.label}
               </a>
             ))}
           </motion.nav>
@@ -502,17 +530,18 @@ export default function Home() {
               <nav className="flex flex-col gap-6 mt-12">
                 {navLinks.map((l) => (
                   <a
-                    key={l}
-                    href="#"
+                    key={l.label}
+                    href={`#${l.id}`}
                     className="text-3xl font-medium tracking-tight"
                     style={{ fontFamily: "'Fraunces', serif" }}
                     onClick={(event) => {
                       event.preventDefault();
-                      showToast(`${l} selected`);
+                      scrollToSection(l.id);
+                      showToast(`${l.label} selected`);
                       setMenuOpen(false);
                     }}
                   >
-                    {l}
+                    {l.label}
                   </a>
                 ))}
               </nav>
@@ -577,7 +606,67 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12">
+        <AnimatePresence>
+          {modalContent && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-[#14120A]/40 px-4"
+              onClick={() => setModalContent(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 12, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: EASE }}
+                className="w-full max-w-xl rounded-[28px] border border-[#E5E5E0] bg-[#FBF1D6] p-7 shadow-[0_30px_80px_rgba(20,18,10,0.2)]"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.14em]" style={{ color: "#7A7A7A" }}>
+                  {modalContent.eyebrow}
+                </div>
+                <h3
+                  className="mb-4"
+                  style={{
+                    fontFamily: "'Fraunces', serif",
+                    fontWeight: 500,
+                    fontSize: "clamp(1.8rem, 3vw, 2.5rem)",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {modalContent.title}
+                </h3>
+                <p className="text-[15px] leading-relaxed" style={{ color: "#4A4738" }}>
+                  {modalContent.body}
+                </p>
+                <div className="mt-6 flex items-center justify-between gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setModalContent(null)}
+                    className="rounded-full border border-[#14120A] px-4 py-2 text-[13px] font-medium"
+                    style={{ color: "#14120A" }}
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalContent(null);
+                      scrollToSection("ledger");
+                    }}
+                    className="rounded-full px-4 py-2 text-[13px] font-medium"
+                    style={{ background: "#14120A", color: "#FBF1D6" }}
+                  >
+                    {modalContent.cta}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div id="ledger" className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12">
           {/* donate + live ledger, below the dot-field hero */}
           <div className="py-14 grid grid-cols-1 lg:grid-cols-[1.05fr,0.95fr] gap-14 items-start">
             <div className="flex flex-col justify-center h-full">
@@ -744,7 +833,7 @@ export default function Home() {
           </motion.div>
 
           {/* audience cards */}
-          <section className="py-20">
+          <section id="protocol" className="py-20">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -793,7 +882,15 @@ export default function Home() {
                   </div>
                   <a
                     href="#"
-                    onClick={(event) => event.preventDefault()}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      openDetailModal(
+                        "Built for",
+                        a.title,
+                        a.body,
+                        a.cta
+                      );
+                    }}
                     className="inline-flex items-center gap-1 text-[13px] font-medium mt-6 w-fit"
                     style={{ color: "#14120A" }}
                   >
@@ -805,7 +902,7 @@ export default function Home() {
           </section>
 
           {/* campaign / use-case cards */}
-          <section className="py-20" style={{ borderTop: "1px solid #E5E5E0" }}>
+          <section id="campaigns" className="py-20" style={{ borderTop: "1px solid #E5E5E0" }}>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -863,7 +960,15 @@ export default function Home() {
                   </p>
                   <a
                     href="#"
-                    onClick={(event) => event.preventDefault()}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      openDetailModal(
+                        "Campaign detail",
+                        c.name,
+                        c.blurb,
+                        "View manifest"
+                      );
+                    }}
                     className="inline-flex items-center gap-1 text-[13px] font-medium"
                     style={{ color: "#14120A" }}
                   >
@@ -876,7 +981,7 @@ export default function Home() {
         </div>
 
         {/* footer */}
-        <footer style={{ borderTop: "1px solid #E5E5E0", background: "#FAFAF8" }}>
+        <footer id="team" style={{ borderTop: "1px solid #E5E5E0", background: "#FAFAF8" }}>
           <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12 py-16">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
               <div className="col-span-2 md:col-span-1">
