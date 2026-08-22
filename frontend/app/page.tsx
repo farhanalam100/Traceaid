@@ -297,8 +297,16 @@ export default function Home() {
   const [donating, setDonating] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const navLinks = ["Ledger", "Campaigns", "Protocol", "Team"];
+
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => setToast(null), 2500);
+    }
+  }, []);
 
   const loadLedger = useCallback(async () => {
     setLoadingLedger(true);
@@ -317,32 +325,71 @@ export default function Home() {
   }, [loadLedger]);
 
   async function connectWallet() {
-    const connected = await isConnected();
-    if (!connected.isConnected) {
-      await requestAccess();
+    if (typeof window === "undefined") {
+      setStatusMsg("Wallet connection is only available in the browser.");
+      return;
     }
-    const addr = await getAddress();
-    if (addr.address) setWallet(addr.address);
+
+    try {
+      const connected = await isConnected();
+      if (!connected.isConnected) {
+        const access = await requestAccess();
+        if (access.error) {
+          throw new Error(access.error.message || "Freighter access was denied.");
+        }
+      }
+
+      const addr = await getAddress();
+      if (addr.address) {
+        setWallet(addr.address);
+        const message = "Wallet connected.";
+        setStatusMsg(message);
+        showToast(message);
+        return;
+      }
+
+      const noAddressMessage = "Freighter opened, but no wallet address was returned.";
+      setStatusMsg(noAddressMessage);
+      showToast(noAddressMessage);
+    } catch (e: any) {
+      console.error(e);
+      const message =
+        e?.message?.includes("not found") || e?.message?.includes("denied")
+          ? "Freighter is not active in this browser. Please install or enable the extension, then refresh."
+          : "Freighter did not open. Please allow the extension and try again.";
+      setStatusMsg(message);
+      showToast(message);
+    }
   }
 
   async function handleDonate() {
     if (!wallet) {
       await connectWallet();
-      return;
+      if (!wallet) {
+        showToast("Connect your wallet first before donating.");
+        return;
+      }
     }
+
     setDonating(true);
-    setStatusMsg("Waiting for signature in Freighter...");
+    const message = "Waiting for signature in Freighter...";
+    setStatusMsg(message);
+    showToast(message);
+
     try {
       const result = await submitDeposit(wallet, 25);
-      setStatusMsg(
+      const finalMessage =
         result.status === "SUCCESS"
           ? "Donation confirmed on chain."
-          : `Submitted (${result.status}) — refreshing ledger...`
-      );
+          : `Submitted (${result.status}) — refreshing ledger...`;
+      setStatusMsg(finalMessage);
+      showToast(finalMessage);
       await loadLedger();
     } catch (e: any) {
       console.error(e);
-      setStatusMsg(`Error: ${e.message || "donation failed"}`);
+      const errorMessage = `Error: ${e.message || "donation failed"}`;
+      setStatusMsg(errorMessage);
+      showToast(errorMessage);
     } finally {
       setDonating(false);
       setTimeout(() => setStatusMsg(null), 5000);
@@ -388,19 +435,28 @@ export default function Home() {
             style={{ color: "#3F3B2C" }}
           >
             {navLinks.map((l) => (
-              <a key={l} href="#" className="hover:opacity-60 transition-opacity">
+              <a
+                key={l}
+                href="#"
+                onClick={(event) => event.preventDefault()}
+                className="hover:opacity-60 transition-opacity"
+              >
                 {l}
               </a>
             ))}
           </motion.nav>
 
           <motion.button
+            type="button"
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ opacity: 0.85 }}
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-            onClick={connectWallet}
+            onClick={() => {
+              showToast("Opening Freighter wallet...");
+              void connectWallet();
+            }}
             className="text-[13px] font-medium px-4 py-2 rounded-full"
             style={{
               background: wallet ? "#F2ECD3" : "#14120A",
@@ -411,7 +467,11 @@ export default function Home() {
           </motion.button>
 
           <button
-            onClick={() => setMenuOpen(true)}
+            type="button"
+            onClick={() => {
+              showToast("Menu opened");
+              setMenuOpen(true);
+            }}
             className="md:hidden w-9 h-9 rounded-full flex items-center justify-center ml-2"
             style={{ background: "#14120A" }}
             aria-label="Open menu"
@@ -431,6 +491,7 @@ export default function Home() {
             >
               <div className="flex justify-end">
                 <button
+                  type="button"
                   onClick={() => setMenuOpen(false)}
                   className="w-9 h-9 rounded-full flex items-center justify-center"
                   style={{ background: "#14120A" }}
@@ -445,7 +506,11 @@ export default function Home() {
                     href="#"
                     className="text-3xl font-medium tracking-tight"
                     style={{ fontFamily: "'Fraunces', serif" }}
-                    onClick={() => setMenuOpen(false)}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      showToast(`${l} selected`);
+                      setMenuOpen(false);
+                    }}
                   >
                     {l}
                   </a>
@@ -497,6 +562,21 @@ export default function Home() {
       </div>
 
       <main className="relative z-10">
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.96 }}
+              transition={{ duration: 0.2, ease: EASE }}
+              className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-sm font-medium shadow-lg"
+              style={{ background: "#14120A", color: "#FBF1D6" }}
+            >
+              {toast}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-12">
           {/* donate + live ledger, below the dot-field hero */}
           <div className="py-14 grid grid-cols-1 lg:grid-cols-[1.05fr,0.95fr] gap-14 items-start">
@@ -525,7 +605,11 @@ export default function Home() {
               </p>
               <div className="flex flex-col gap-3">
                 <motion.button
-                  onClick={handleDonate}
+                  type="button"
+                  onClick={() => {
+                    showToast("Donation action started");
+                    void handleDonate();
+                  }}
                   disabled={donating}
                   whileHover={{ opacity: 0.9 }}
                   whileTap={{ scale: 0.98 }}
@@ -709,6 +793,7 @@ export default function Home() {
                   </div>
                   <a
                     href="#"
+                    onClick={(event) => event.preventDefault()}
                     className="inline-flex items-center gap-1 text-[13px] font-medium mt-6 w-fit"
                     style={{ color: "#14120A" }}
                   >
@@ -778,6 +863,7 @@ export default function Home() {
                   </p>
                   <a
                     href="#"
+                    onClick={(event) => event.preventDefault()}
                     className="inline-flex items-center gap-1 text-[13px] font-medium"
                     style={{ color: "#14120A" }}
                   >
@@ -815,6 +901,7 @@ export default function Home() {
                       <a
                         key={l}
                         href="#"
+                        onClick={(event) => event.preventDefault()}
                         className="text-[13px] hover:opacity-60 transition-opacity"
                         style={{ color: "#3F3F3F" }}
                       >
