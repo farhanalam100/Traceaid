@@ -1,4 +1,4 @@
-# ReliefCHain
+# ReliefChain
 
 Traceaid is a transparent disaster-relief funding platform built on Stellar and Soroban. It helps donors send money to verified relief campaigns, lets NGOs and field partners track allocations, and makes the complete funding trail auditable on-chain.
 
