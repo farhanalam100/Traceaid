@@ -703,7 +703,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 12, scale: 0.98 }}
                 transition={{ duration: 0.2, ease: EASE }}
-                className="w-full max-w-xl rounded-[28px] border border-[#E5E5E0] bg-[#FBF1D6] p-7 shadow-[0_30px_80px_rgba(20,18,10,0.2)]"
+                className="w-full max-w-3xl max-h-[82vh] overflow-y-auto rounded-[28px] border border-[#E5E5E0] bg-[#FBF1D6] p-7 shadow-[0_30px_80px_rgba(20,18,10,0.2)]"
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.14em]" style={{ color: "#7A7A7A" }}>
@@ -714,20 +714,20 @@ export default function Home() {
                   style={{
                     fontFamily: "'Fraunces', serif",
                     fontWeight: 500,
-                    fontSize: "clamp(1.8rem, 3vw, 2.5rem)",
+                    fontSize: "clamp(2.1rem, 4vw, 3.2rem)",
                     lineHeight: 1.1,
                   }}
                 >
                   {modalContent.title}
                 </h3>
-                <p className="text-[15px] leading-relaxed" style={{ color: "#4A4738" }}>
+                <p className="text-[16px] leading-relaxed" style={{ color: "#4A4738" }}>
                   {modalContent.body}
                 </p>
-                <div className="mt-6 flex items-center justify-between gap-4">
+                <div className="mt-8 flex items-center justify-between gap-4">
                   <button
                     type="button"
                     onClick={() => setModalContent(null)}
-                    className="rounded-full border border-[#14120A] px-4 py-2 text-[13px] font-medium"
+                    className="rounded-full border border-[#14120A] px-5 py-2.5 text-[13px] font-medium"
                     style={{ color: "#14120A" }}
                   >
                     Close
@@ -738,7 +738,7 @@ export default function Home() {
                       setModalContent(null);
                       scrollToSection("ledger");
                     }}
-                    className="rounded-full px-4 py-2 text-[13px] font-medium"
+                    className="rounded-full px-5 py-2.5 text-[13px] font-medium"
                     style={{ background: "#14120A", color: "#FBF1D6" }}
                   >
                     {modalContent.cta}
